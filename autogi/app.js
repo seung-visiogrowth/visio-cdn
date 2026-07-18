@@ -61,3 +61,42 @@ async function getData(){
   if(window.__DATA__)return window.__DATA__;
   try{return await (await fetch('/api/data')).json()}catch(e){return null}
 }
+
+/* ─── SVG 차트 유틸 (의존성 0) ─── */
+function barChart(items, opts={}){ // items: [{label, value, sub?}]
+  const W=opts.w||1100, H=opts.h||220, pad=34, max=Math.max(1,...items.map(i=>i.value));
+  const bw=Math.min(64,(W-pad*2)/items.length*0.62), gap=(W-pad*2)/items.length;
+  const bars=items.map((it,i)=>{
+    const h=Math.round((H-70)*it.value/max), x=pad+i*gap+(gap-bw)/2, y=H-40-h;
+    return `<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="7" fill="url(#rg)"/>
+      <text x="${x+bw/2}" y="${y-8}" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">${it.value||''}</text>
+      <text x="${x+bw/2}" y="${H-16}" text-anchor="middle" font-size="12" fill="#8B8D93" font-weight="600">${esc(it.label)}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
+    <defs><linearGradient id="rg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF5A3C"/><stop offset="1" stop-color="#E43A25"/></linearGradient></defs>
+    <line x1="${pad}" y1="${H-40}" x2="${W-pad}" y2="${H-40}" stroke="#242427" stroke-width="1.5"/>${bars}</svg>`;
+}
+function lineChart(series, labels, opts={}){ // series: [{name,color,values[]}]
+  const W=opts.w||1100, H=opts.h||230, pad=40;
+  const all=series.flatMap(s=>s.values).filter(v=>v!=null);
+  if(!all.length)return `<div class="empty">데이터 축적 중 — 토큰 연동 후 일별 스냅샷이 쌓이면 그래프가 그려집니다</div>`;
+  const max=Math.max(...all), min=Math.min(...all), span=(max-min)||1;
+  const X=i=>pad+(W-pad*2)*(labels.length<2?0.5:i/(labels.length-1));
+  const Y=v=>H-36-(H-70)*((v-min)/span);
+  const paths=series.map(s=>{
+    const pts=s.values.map((v,i)=>v==null?null:`${X(i)},${Y(v)}`).filter(Boolean);
+    return `<polyline points="${pts.join(' ')}" fill="none" stroke="${s.color}" stroke-width="3" stroke-linecap="round"/>`+
+      s.values.map((v,i)=>v==null?'':`<circle cx="${X(i)}" cy="${Y(v)}" r="4" fill="${s.color}"/>`).join('');
+  }).join('');
+  const xt=labels.map((l,i)=>i%Math.ceil(labels.length/7)?'':`<text x="${X(i)}" y="${H-12}" text-anchor="middle" font-size="11.5" fill="#8B8D93">${esc(l)}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
+    <line x1="${pad}" y1="${H-36}" x2="${W-pad}" y2="${H-36}" stroke="#242427" stroke-width="1.5"/>${paths}${xt}</svg>`;
+}
+function publishTrend(d,days=14){ // 최근 N일 발행 건수
+  const cnt={};
+  [...d.published,...d.scheduled].forEach(p=>{if(!p.due)return;const k=p.due.slice(5,10);cnt[k]=(cnt[k]||0)+1});
+  const out=[];const now=new Date();
+  for(let i=days-1;i>=0;i--){const t=new Date(now-i*86400000);const k=`${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+    out.push({label:k.slice(3)+'일',value:cnt[k]||0})}
+  return out;
+}

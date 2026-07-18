@@ -17,6 +17,7 @@
 <div class="wrap">
 <div class="hero"><h1>쓰레드</h1><span class="tagpill">채널별 쓰레드 발행 현황</span></div>
 <div class="stats" id="stats"></div>
+<div class="chartcard"><div class="ct">📈 쓰레드 발행 추이</div><div class="cs">최근 14일 — 쓰레드만</div><div id="thTrend"></div></div>
 <h2>쓰레드 계정 <small>전 채널 개설 완료 (7/18) · API 연결은 토큰 후</small></h2><div class="grid" id="channels"></div>
 <h2>쓰레드 발행 완료</h2><div class="list" id="published"></div>
 <h2>쓰레드 예약</h2><div class="list" id="scheduled"></div>
@@ -31,6 +32,8 @@ window.addEventListener('DOMContentLoaded',async()=>{
     <div class="stat"><b>${thPub.length}</b><span>쓰레드 발행 (최근)</span></div>
     <div class="stat"><b>${thSch.length}</b><span>쓰레드 예약</span></div>
     <div class="stat"><b>${d.engine.self_pub_ready?'가동':'대기'}</b><span>Threads API</span></div>`;
+  const thd={published:d.published.filter(isThreads),scheduled:d.scheduled.filter(p=>isThreads(p)||isBoth(p))};
+  document.getElementById('thTrend').innerHTML=barChart(publishTrend(thd,14),{h:190});
   document.getElementById('channels').innerHTML=d.channels.filter(c=>c.threads||c.threads_url).map(c=>`
     <div class="ch"><div class="chtop">${av(c.handle,c.logo)}
       <div><div class="nm">${esc(c.name)}</div>

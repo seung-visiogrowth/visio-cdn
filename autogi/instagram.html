@@ -17,6 +17,10 @@
 <div class="wrap">
 <div class="hero"><h1>인스타 · 카드뉴스</h1><span class="tagpill">채널 현황 · 발행물 · 아카이브</span></div>
 <div class="stats" id="stats"></div>
+<div class="chartrow">
+  <div class="chartcard"><div class="ct">📊 채널별 발행 수</div><div class="cs">최근 발행 이력 기준</div><div id="chPubChart"></div></div>
+  <div class="chartcard"><div class="ct">📈 팔로워 추이</div><div class="cs">일별 스냅샷 (메타 토큰 연동 후 자동 축적)</div><div id="folChart"></div></div>
+</div>
 <h2>채널 현황 & 인게이지먼트 <small>'게시물 미리보기'로 실제 피드 임베드</small></h2><div class="grid" id="channels"></div>
 <h2>인스타 발행 완료 <small>게시물 임베드 지원</small></h2><div class="list" id="published"></div>
 <h2>카드뉴스 아카이브 <small>발행 카드 원본</small></h2><div id="cardnews"></div>
@@ -32,6 +36,14 @@ window.addEventListener('DOMContentLoaded',async()=>{
     <div class="stat"><b>${d.channels.filter(c=>c.professional).length}</b><span>프로페셔널</span></div>
     <div class="stat"><b>${igPub.length}</b><span>인스타 발행 (최근)</span></div>
     <div class="stat"><b>${(d.cardnews||[]).length}</b><span>카드뉴스 회차</span></div>`;
+  const pubByCh={};d.published.forEach(p=>{if(!isThreads(p))pubByCh[p.channel]=(pubByCh[p.channel]||0)+1});
+  document.getElementById('chPubChart').innerHTML=barChart(d.channels.filter(c=>c.handle).map(c=>({label:c.name,value:pubByCh[c.name]||0})),{h:200});
+  const hist=d.eng_history||[];
+  const palette=['#E43A25','#FF8A3C','#3DDC84','#4DA3FF','#C77DFF','#FFC24B','#FF6AA2','#9AA0A6'];
+  const chs=d.channels.filter(c=>c.handle).map(c=>c.name);
+  document.getElementById('folChart').innerHTML=lineChart(
+    chs.map((n,i)=>({name:n,color:palette[i%palette.length],values:hist.map(hh=>(hh.channels[n]||{}).f??null)})),
+    hist.map(hh=>hh.date.slice(5)),{h:200});
   document.getElementById('channels').innerHTML=d.channels.map((c,i)=>chCard(c,i,true)).join('');
   document.getElementById('published').innerHTML=igPub.length?igPub.map((p,i)=>postRow(p,'p'+i,true)).join(''):'<div class="empty">아직 없음</div>';
   document.getElementById('cardnews').innerHTML=(d.cardnews||[]).length?d.cardnews.map(ep=>`

@@ -97,3 +97,14 @@ h2 small{color:var(--mut);font-size:12px;font-weight:500}
 footer{border-top:1px solid var(--line);margin-top:44px}
 .foot-in{max-width:1280px;margin:0 auto;padding:20px 4vw;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--mut);font-size:11px;letter-spacing:1px;align-items:center}
 .foot-in img{height:20px;opacity:.85}
+
+/* 차트 & 모던 폴리시 */
+.chartcard{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:20px;padding:26px 28px;margin-bottom:14px}
+.chartcard .ct{font-size:15px;font-weight:900;color:var(--w);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.chartcard .cs{font-size:11.5px;color:var(--mut);margin-bottom:14px}
+.chartrow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ch,.post,.dm,.stat{border-radius:20px}
+.ch:hover{box-shadow:0 10px 34px rgba(228,58,37,.12)}
+.legend{display:flex;gap:14px;font-size:11.5px;color:var(--mut);font-weight:700}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+@media (max-width:860px){.chartrow{grid-template-columns:1fr}.nav-in{flex-wrap:wrap;height:auto;padding:10px 4vw;gap:10px}.menu{order:3;width:100%;overflow-x:auto}.nav .meta{display:none}.hero h1{font-size:21px}}

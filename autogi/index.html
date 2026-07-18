@@ -17,6 +17,7 @@
 <div class="wrap">
 <div class="hero"><h1>발행 스케줄</h1><span class="tagpill" id="hostTag">Performance Marketing NO.1</span></div>
 <div class="stats" id="stats"></div>
+<div class="chartcard"><div class="ct">📈 발행 추이 <span class="legend"><span><i style="background:#E43A25"></i>일별 발행+예약 건수</span></span></div><div class="cs">최근 14일 — 전 채널 합산</div><div id="trendChart"></div></div>
 <h2>발행 타임라인 <small>노션 캘린더 + Buffer 예약 통합 · 시간순</small></h2>
 <div id="timeline"></div>
 <h2>바로가기</h2>
@@ -41,6 +42,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
     <div class="stat"><b>${totalFollowers?num(totalFollowers):'—'}</b><span>총 팔로워</span></div>
     <div class="stat"><b>${d.published.length}</b><span>발행 완료 (최근)</span></div>
     <div class="stat"><b>${d.dm.sent_total+d.dm.littly.automations}</b><span>DM 자동화</span></div>`;
+  document.getElementById('trendChart').innerHTML=barChart(publishTrend(d,14),{h:200});
   // 날짜별 타임라인 (예약 = 미래, 최근 발행 = 오늘 것만 함께)
   const items=[...d.scheduled.map(p=>({...p,_k:'예약'})),...d.published.filter(p=>p.due&&new Date(p.due).toDateString()===new Date().toDateString()).map(p=>({...p,_k:'발행됨'}))];
   items.sort((a,b)=>(a.due||'').localeCompare(b.due||''));
